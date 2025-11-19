@@ -7,8 +7,6 @@ from PySide6.QtWidgets import (
     QListWidget, QListWidgetItem, QFileDialog, QMessageBox, QLabel, QComboBox, QCheckBox
 )
 from PySide6.QtCore import QThreadPool
-
-# Optional: for sound
 from PySide6.QtMultimedia import QSoundEffect
 
 from core.config_manager import load_config, save_config
@@ -17,6 +15,7 @@ from core.types import DownloadTypes
 from core.worker import DownloadTask
 from ui.link_item_widget import LinkItemWidget
 from core.signals import DownloadWorkerSignals
+import qdarktheme
 
 try:
     import requests
@@ -27,6 +26,7 @@ except Exception:
 class DownoaderWidget(QWidget):
     def __init__(self):
         super().__init__()
+        qdarktheme.setup_theme()
         self.setWindowTitle('Super Easy YT Downloader')
         self.setMinimumSize(640, 480)
 
@@ -187,79 +187,8 @@ class DownoaderWidget(QWidget):
         save_config(self.cfg)
 
     def apply_dark_style(self):
-        self.setStyleSheet('''
-            QWidget { background: #2b2b2b; color: #e6e6e6; }
-            QLineEdit, QListWidget, QComboBox { background: #3c3c3c; color: #e6e6e6; }
-            QPushButton { background: #4CAF50; color: white; border-radius: 6px; padding: 6px; }
-        ''')
+        qdarktheme.setup_theme("dark")
+
 
     def apply_light_style(self):
-        self.setStyleSheet('')
-
-    # def dragEnterEvent(self, event: QDragEnterEvent):
-    #     if event.mimeData().hasText():
-    #         event.acceptProposedAction()
-
-    # def dropEvent(self, event: QDropEvent):
-    #     text = event.mimeData().text().strip()
-    #     # can contain multiple lines
-    #     for line in text.splitlines():
-    #         if line.strip():
-    #             self.add_link_item(line.strip())
-
-    # def fetch_metadata_async(self, url, widget: LinkItemWidget):
-    #     # We'll try to use yt_dlp to extract info without downloading
-    #     def task():
-    #         title = None
-    #         thumb_url = None
-    #         try:
-    #             if YTDLP_AVAILABLE:
-    #                 ydl_opts = {'quiet': True, 'skip_download': True}
-    #                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-    #                     info = ydl.extract_info(url, download=False)
-    #                     title = info.get('title')
-    #                     thumb_url = info.get('thumbnail')
-    #             else:
-    #                 # use "yt-dlp -j" to get json
-    #                 proc = shutil.which('yt-dlp')
-    #                 if proc:
-    #                     p = subprocess.run(['yt-dlp', '-j', url], capture_output=True, text=True)
-    #                     if p.returncode == 0:
-    #                         try:
-    #                             j = json.loads(p.stdout.splitlines()[0])
-    #                             title = j.get('title')
-    #                             thumb_url = j.get('thumbnail')
-    #                         except Exception:
-    #                             pass
-    #         except Exception:
-    #             pass
-
-    #         # fetch thumbnail image
-    #         if thumb_url and requests:
-    #             try:
-    #                 r = requests.get(thumb_url, timeout=8)
-    #                 if r.status_code == 200:
-    #                     data = r.content
-    #                     pix = QPixmap()
-    #                     pix.loadFromData(data)
-    #                     return (title, pix)
-    #             except Exception:
-    #                 pass
-    #         return (title, None)
-
-    #     # run in threadpool and update UI when done
-    #     from concurrent.futures import ThreadPoolExecutor
-    #     executor = ThreadPoolExecutor(max_workers=1)
-    #     future = executor.submit(task)
-
-    #     def done(fut):
-    #         try:
-    #             title, pix = fut.result()
-    #             if title:
-    #                 widget.set_title(title)
-    #             if pix:
-    #                 widget.set_thumbnail(pix)
-    #         except Exception:
-    #             pass
-
-    #     future.add_done_callback(done)
+        qdarktheme.setup_theme("light")
