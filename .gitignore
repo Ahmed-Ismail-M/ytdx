@@ -5,6 +5,7 @@ __pycache__/
 arch/
 # C extensions
 *.so
+.ytdx_cfg.json
 .vscode/
 # Distribution / packaging
 .Python

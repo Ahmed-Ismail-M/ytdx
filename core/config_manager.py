@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-CONFIG_PATH = Path.home() / '.yt_pyside_cfg.json'
+CONFIG_PATH = '.ytdx_cfg.json'
 
 DEFAULT_CONFIG = {
     'last_folder': str(Path.home()),
@@ -11,7 +11,7 @@ DEFAULT_CONFIG = {
 
 def load_config():
     try:
-        if CONFIG_PATH.exists():
+        if Path(CONFIG_PATH).exists():
             with open(CONFIG_PATH, 'r') as f:
                 data = json.load(f)
                 return {**DEFAULT_CONFIG, **data}
