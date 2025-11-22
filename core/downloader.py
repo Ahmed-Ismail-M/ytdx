@@ -1,11 +1,12 @@
 import os
-import subprocess
 import requests
 import shutil
 from tempfile import NamedTemporaryFile
 import yt_dlp
 from pathlib import Path
 import platform
+
+from core.exceptions import DownloadStopped
 
 
 SYSTEM = platform.system()
@@ -71,6 +72,7 @@ class HttpDownloader:
 class YTDownloader:
 
     def download(self, url, outdir, fmt='best', process_callback=None):
+        self.stop_requested = False
         os.makedirs(outdir, exist_ok=True)
         opts = {
             'outtmpl': os.path.join(outdir, '%(title)s.%(ext)s'),
@@ -79,11 +81,7 @@ class YTDownloader:
             'merge_output_format': 'mp4',
             'progress_hooks': [process_callback] if process_callback else [],
             'ffmpeg_location': str(BIN_PATH / 'ffmpeg.exe'),
-            # 'ffprobe_location': str(FFPROBE_PATH),
         }
-        subprocess.run([str(FFMPEG_PATH), '-version'],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print("FFmpeg works!")
         if fmt == 'Audio (mp3)':
             opts.update({'format': 'bestaudio', 'postprocessors': [{
                 'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'
@@ -107,8 +105,11 @@ class YTDownloader:
 
         print(f"Downloading with options: {opts}")
         with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            return info
+            try:
+                info = ydl.extract_info(url, download=True)
+                return info
+            except yt_dlp.utils.DownloadCancelled:
+                pass
 
 
 def download_missing_binaries():

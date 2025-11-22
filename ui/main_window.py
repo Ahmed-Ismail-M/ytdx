@@ -132,30 +132,19 @@ class DownoaderWidget(QWidget):
         for i in range(self.link_list.count()):
             item = self.link_list.item(i)
             widget = self.link_list.itemWidget(item)
-            widget.set_status('Queued')
-            signals = DownloadWorkerSignals()
-            signals.progress.connect(widget.set_progress)
-            signals.status.connect(widget.set_status)
-            signals.finished.connect(partial(self.on_finished, widget))
-            worker = DownloadTask(widget.url, self.download_folder,
-                                  fmt, signals, DownloadTypes.YTDLP)
-            self.threadpool.start(worker)
+            widget.download()
+            # widget.set_status('Queued')
+            # signals = DownloadWorkerSignals()
+            # signals.progress.connect(widget.set_progress)
+            # signals.status.connect(widget.set_status)
+            # signals.finished.connect(widget.on_finished)
+            # worker = DownloadTask(widget.url, self.download_folder,
+            #                       fmt, signals, DownloadTypes.YTDLP)
+            # widget.worker = worker
+            # self.threadpool.start(worker)
+        print(f'Started downloading {count} items.')
 
-    def on_finished(self, widget: LinkItemWidget, success: bool, message: str):
-        if success:
-            widget.set_status('Completed')
-            widget.set_progress(100)
-            # beep
-            try:
-                # try QSoundEffect - if not loaded, fallback to beep
-                if self.sound.source().isEmpty():
-                    QApplication.beep()
-                else:
-                    self.sound.play()
-            except Exception:
-                QApplication.beep()
-        else:
-            widget.set_status(f'Failed: {message}')
+
 
     def choose_folder(self):
         folder = QFileDialog.getExistingDirectory(

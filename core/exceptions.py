@@ -1,0 +1,2 @@
+class DownloadStopped(Exception):
+    pass 

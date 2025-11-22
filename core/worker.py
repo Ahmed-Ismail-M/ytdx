@@ -1,7 +1,9 @@
 import os
 from PySide6.QtCore import QRunnable
+import yt_dlp
 from core.downloader import HttpDownloader
 from core.downloader import YTDownloader
+from core.exceptions import DownloadStopped
 from core.signals import DownloadWorkerSignals
 from core.types import DownloadTypes
 
@@ -14,6 +16,10 @@ class DownloadTask(QRunnable):
         self.fmt = fmt
         self.downloadTypes = downloadTypes
         self.signals = signals
+        self.stop_requested = False
+
+    def stop(self):
+        self.stop_requested = True
 
     def run(self):
         try:
@@ -42,17 +48,25 @@ class DownloadTask(QRunnable):
 
     def _progress_hook(self, d):
         # d is dict with status info
+
+        if self.stop_requested:
+            self.signals.status.emit('Cancelled by user')
+            raise yt_dlp.utils.DownloadCancelled()
         if d.get('status') == 'downloading':
             total_bytes = d.get('total_bytes') or d.get('total_bytes_estimate') or 0
             downloaded = d.get('downloaded_bytes', 0)
+            eta = d.get('eta')
+            speed = d.get('speed')
+
+            eta_text = f"ETA: {eta}s" if eta is not None else ""
+            speed_text = f"Speed: {round(speed / 1024 / 1024, 2)} MB/s" if speed else ""
+            status = f"{eta_text}  {speed_text}".strip()
             try:
                 pct = (downloaded / total_bytes) * 100 if total_bytes else 0.0
             except Exception:
                 pct = 0.0
             self.signals.progress.emit(min(max(pct, 0.0), 100.0))
-            self.signals.status.emit(d.get('eta') and f"ETA: {d.get('eta')}")
+            self.signals.status.emit(status)
         elif d.get('status') == 'finished':
             self.signals.progress.emit(100.0)
             self.signals.status.emit('Merging / finalizing...')
-
-   
