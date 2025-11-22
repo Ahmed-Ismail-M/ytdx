@@ -16,21 +16,18 @@ from core.worker import DownloadTask
 from ui.link_item_widget import LinkItemWidget
 from core.signals import DownloadWorkerSignals
 import qdarktheme
-
-try:
-    import requests
-except Exception:
-    requests = None
+from core.downloader import download_missing_binaries
 
 
 class DownoaderWidget(QWidget):
     def __init__(self):
         super().__init__()
         qdarktheme.setup_theme()
-        self.setWindowTitle('Super Easy YT Downloader')
+        self.setWindowTitle('YT Downloader')
         self.setMinimumSize(640, 480)
 
         self.cfg = load_config()
+        download_missing_binaries()
 
         self.threadpool = QThreadPool.globalInstance()
 
@@ -65,6 +62,8 @@ class DownoaderWidget(QWidget):
         self.format_combo.addItems(
             ['Best (video+audio)', '720p', '360p', 'Audio (mp3)', 'Audio (m4a)'])
         self.format_combo.setCurrentText(self.cfg.get('format_preset', 'Best (video+audio)'))
+        self.format_combo.currentTextChanged.connect(
+            lambda text: self.cfg.__setitem__('format_preset', text) or save_config(self.cfg))
 
         # Folder picker
         folder_btn = QPushButton('Choose Folder')
@@ -78,9 +77,6 @@ class DownoaderWidget(QWidget):
         self.dark_toggle.stateChanged.connect(self.toggle_dark)
         # sound effect
         self.sound = QSoundEffect()
-        # Use a short system beep via QSoundEffect if available - many systems won't have a file.
-        # We'll fallback to QApplication.beep() if playback fails.
-
         toolbar.addWidget(self.format_combo)
         toolbar.addWidget(folder_btn)
         toolbar.addWidget(self.folder_label)
@@ -91,15 +87,8 @@ class DownoaderWidget(QWidget):
         main.addLayout(top)
         main.addWidget(self.link_list)
         main.addLayout(toolbar)
-        # main.addWidget(drag_label)
-
-        # Accept drops on the main window
         self.setAcceptDrops(True)
-
-        # set saved folder
         self.download_folder = self.cfg.get('last_folder', str(Path.home()))
-
-        # Apply dark mode if set
         if self.cfg.get('dark_mode'):
             self.apply_dark_style()
 
@@ -132,15 +121,6 @@ class DownoaderWidget(QWidget):
         for itm in self.link_list.selectedItems():
             row = self.link_list.row(itm)
             self.link_list.takeItem(row)
-
-    def choose_folder(self):
-        folder = QFileDialog.getExistingDirectory(
-            self, 'Choose download folder', self.download_folder)
-        if folder:
-            self.download_folder = folder
-            self.folder_label.setText(folder)
-            self.cfg['last_folder'] = folder
-            save_config(self.cfg)
 
     def download_all(self):
         count = self.link_list.count()
@@ -177,6 +157,15 @@ class DownoaderWidget(QWidget):
         else:
             widget.set_status(f'Failed: {message}')
 
+    def choose_folder(self):
+        folder = QFileDialog.getExistingDirectory(
+            self, 'Choose download folder', self.download_folder)
+        if folder:
+            self.download_folder = folder
+            self.folder_label.setText(folder)
+            self.cfg['last_folder'] = folder
+            save_config(self.cfg)
+
     def toggle_dark(self, state):
         enabled = bool(state)
         self.cfg['dark_mode'] = enabled
@@ -188,7 +177,6 @@ class DownoaderWidget(QWidget):
 
     def apply_dark_style(self):
         qdarktheme.setup_theme("dark")
-
 
     def apply_light_style(self):
         qdarktheme.setup_theme("light")

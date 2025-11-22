@@ -54,3 +54,5 @@ class DownloadTask(QRunnable):
         elif d.get('status') == 'finished':
             self.signals.progress.emit(100.0)
             self.signals.status.emit('Merging / finalizing...')
+
+   

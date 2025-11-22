@@ -1,12 +1,17 @@
 import json
 from pathlib import Path
-CONFIG_PATH = '.ytdx_cfg.json'
+import platform
 
+SYSTEM = platform.system()
+root = Path(__file__).parent.parent
+CONFIG_PATH = root / '.ytdx_cfg.json'
+BIN_PATH = root / 'bin'
 DEFAULT_CONFIG = {
     'last_folder': str(Path.home()),
     'dark_mode': False,
     'format_preset': 'Best (video+audio)'
 }
+FFMPEG_PATH = Path(BIN_PATH) / ('ffmpeg.exe' if SYSTEM == 'Windows' else 'ffmpeg')
 
 
 def load_config():
