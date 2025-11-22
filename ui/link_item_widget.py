@@ -1,11 +1,10 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar, QPushButton, QApplication, QStyle
-from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QPixmap, QDesktopServices
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 from core.signals import DownloadWorkerSignals
 from core.types import DownloadTypes
 from core.worker import DownloadTask
-import os
 
 class LinkItemWidget(QWidget):
     def __init__(self, url, parent=None):

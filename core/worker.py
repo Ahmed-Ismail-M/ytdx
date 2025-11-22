@@ -3,7 +3,6 @@ from PySide6.QtCore import QRunnable
 import yt_dlp
 from core.downloader import HttpDownloader
 from core.downloader import YTDownloader
-from core.exceptions import DownloadStopped
 from core.signals import DownloadWorkerSignals
 from core.types import DownloadTypes
 

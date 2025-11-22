@@ -6,7 +6,6 @@ import yt_dlp
 from pathlib import Path
 import platform
 
-from core.exceptions import DownloadStopped
 
 
 SYSTEM = platform.system()
