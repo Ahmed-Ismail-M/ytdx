@@ -9,7 +9,7 @@ if __name__ == "__main__":
     QFontDatabase.addApplicationFont("assets/fonts/Inter-VariableFont_opsz,wghtttf")
     # QFontDatabase.addApplicationFont("assets/fonts/Inter-Bold.ttf")
     app.setFont(QFont("Inter", 11))
-    app.setWindowIcon(QIcon("downloading.png"))
+    app.setWindowIcon(QIcon("assets/media/downloading.png"))
     window = DownloaderWidget()
     window.show()
     sys.exit(app.exec())
