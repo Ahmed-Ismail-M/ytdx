@@ -1,3 +1,4 @@
+import datetime
 import os
 from PySide6.QtCore import QRunnable
 import yt_dlp
@@ -57,7 +58,7 @@ class DownloadTask(QRunnable):
             eta = d.get('eta')
             speed = d.get('speed')
 
-            eta_text = f"ETA: {eta}s" if eta is not None else ""
+            eta_text = f"ETA: {str(datetime.timedelta(seconds=eta))}" if eta is not None else ""
             speed_text = f"Speed: {round(speed / 1024 / 1024, 2)} MB/s" if speed else ""
             status = f"{eta_text}  {speed_text}".strip()
             try:
